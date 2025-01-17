@@ -1,4 +1,5 @@
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -32,18 +33,10 @@ public class Main {
         JButton buttonAtender = new JButton("Atender Emergencia");
         JButton buttonEstadisticas = new JButton("Mostrar Estadísticas");
 
-        buttonRegistrar.addActionListener((@SuppressWarnings("unused") ActionEvent e) -> {
-            registrarEmergencia();
-        });
-        buttonVerRecursos.addActionListener((@SuppressWarnings("unused") ActionEvent e) -> {
-            verRecursos();
-        });
-        buttonAtender.addActionListener((@SuppressWarnings("unused") ActionEvent e) -> {
-            atenderEmergencia();
-        });
-        buttonEstadisticas.addActionListener((@SuppressWarnings("unused") ActionEvent e) -> {
-            mostrarEstadisticas();
-        });
+        buttonRegistrar.addActionListener((@SuppressWarnings("unused") ActionEvent e) -> registrarEmergencia());
+        buttonVerRecursos.addActionListener((@SuppressWarnings("unused") ActionEvent e) -> verRecursos());
+        buttonAtender.addActionListener((@SuppressWarnings("unused") ActionEvent e) -> atenderEmergencia());
+        buttonEstadisticas.addActionListener((@SuppressWarnings("unused") ActionEvent e) -> mostrarEstadisticas());
 
         panel.add(buttonRegistrar);
         panel.add(buttonVerRecursos);
@@ -114,15 +107,36 @@ public class Main {
     }
 
     private void atenderEmergencia() {
-        JFrame frame = new JFrame("Atender Emergencia");
-        frame.setSize(400, 300);
+        List<Emergencia> emergencias = sistema.getRecursos();
+        if (emergencias.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No hay emergencias para atender.", "Atender Emergencia", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
 
-        JTextArea textArea = new JTextArea();
-        textArea.setEditable(false);
-        textArea.setText(sistema.atenderEmergencia());
+        // Ordenar las emergencias por prioridad
+        emergencias.sort((e1, e2) -> {
+            int prioridad1 = e1.getPrioridad();
+            int prioridad2 = e2.getPrioridad();
+            if (prioridad1 != prioridad2) {
+                return Integer.compare(prioridad1, prioridad2);
+            }
+            return e1.getUbicacion().compareTo(e2.getUbicacion());
+        });
 
-        frame.add(new JScrollPane(textArea));
-        frame.setVisible(true);
+        // Crear un array de opciones para el cuadro de diálogo
+        String[] opciones = emergencias.stream().map(Emergencia::toString).toArray(String[]::new);
+
+        // Mostrar el cuadro de diálogo para seleccionar una emergencia
+        String seleccion = (String) JOptionPane.showInputDialog(null, "Seleccione una emergencia para atender:", "Atender Emergencia", JOptionPane.PLAIN_MESSAGE, null, opciones, opciones[0]);
+
+        if (seleccion != null) {
+            // Encontrar la emergencia seleccionada
+            Emergencia emergenciaSeleccionada = emergencias.stream().filter(e -> e.toString().equals(seleccion)).findFirst().orElse(null);
+            if (emergenciaSeleccionada != null) {
+                String resultado = sistema.atenderEmergencia(emergenciaSeleccionada);
+                JOptionPane.showMessageDialog(null, resultado, "Resultado de Atender Emergencia", JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
     }
 
     private void mostrarEstadisticas() {
@@ -137,3 +151,4 @@ public class Main {
         frame.setVisible(true);
     }
 }
+

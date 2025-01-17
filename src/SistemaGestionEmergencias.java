@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 public class SistemaGestionEmergencias {
@@ -30,17 +29,8 @@ public class SistemaGestionEmergencias {
         return estadoRecursos.toString();
     }
 
-    public String atenderEmergencia() {
-        if (recursos.isEmpty()) {
-            return "No hay emergencias para atender.";
-        }
-
-        // Ordenar las emergencias por prioridad y cercanía
-        recursos.sort(Comparator.comparingInt(Emergencia::getPrioridad)
-                .thenComparing(Emergencia::getUbicacion));
-
+    public String atenderEmergencia(Emergencia emergencia) {
         StringBuilder resultado = new StringBuilder();
-        Emergencia emergencia = recursos.remove(0); // Atender la emergencia de mayor prioridad y más cercana
 
         switch (emergencia.getTipo()) {
             case "Incendio" -> {
@@ -78,6 +68,7 @@ public class SistemaGestionEmergencias {
 
         emergenciasAtendidas++;
         totalTiempoRespuesta += emergencia.getTiempoRespuesta();
+        recursos.remove(emergencia);
 
         return resultado.toString();
     }
@@ -103,5 +94,6 @@ public class SistemaGestionEmergencias {
         return recursos;
     }
 }
+
 
 
