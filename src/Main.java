@@ -14,10 +14,46 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 public class Main {
-    private final SistemaGestionEmergencias sistema = new SistemaGestionEmergencias();
+    private final SistemaGestionEmergencias sistema;
+
+    public Main() {
+        sistema = new SistemaGestionEmergencias();
+        mostrarPanelConfiguracionInicial();
+    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new Main().createAndShowGUI());
+    }
+
+    private void mostrarPanelConfiguracionInicial() {
+        JTextField vehiculosField = new JTextField(5);
+        JTextField personalField = new JTextField(5);
+        JTextField combustibleField = new JTextField(5);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.add(new JLabel("Ingrese los recursos disponibles:"));
+        panel.add(new JLabel("Vehículos:"));
+        panel.add(vehiculosField);
+        panel.add(new JLabel("Personal:"));
+        panel.add(personalField);
+        panel.add(new JLabel("Combustible (litros):"));
+        panel.add(combustibleField);
+
+        int result = JOptionPane.showConfirmDialog(null, panel, "Configuración Inicial", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result == JOptionPane.OK_OPTION) {
+            try {
+                int vehiculos = Integer.parseInt(vehiculosField.getText());
+                int personal = Integer.parseInt(personalField.getText());
+                int combustible = Integer.parseInt(combustibleField.getText());
+                sistema.inicializarRecursos(vehiculos, personal, combustible);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Por favor, ingrese valores válidos.", "Error", JOptionPane.ERROR_MESSAGE);
+                mostrarPanelConfiguracionInicial(); // Volver a mostrar el panel si hay un error
+            }
+        } else {
+            System.exit(0); // Salir si el usuario cancela
+        }
     }
 
     private void createAndShowGUI() {

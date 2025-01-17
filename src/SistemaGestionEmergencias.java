@@ -4,11 +4,21 @@ import java.util.List;
 public class SistemaGestionEmergencias {
 
     private final List<Emergencia> recursos = new ArrayList<>();
-    private int vehiculosDisponibles = 10;
-    private int personalDisponible = 20;
-    private int combustibleDisponible = 1000; // en litros
+    private int vehiculosDisponibles;
+    private int personalDisponible;
+    private int combustibleDisponible; // en litros
     private int emergenciasAtendidas = 0;
     private int totalTiempoRespuesta = 0;
+
+    public SistemaGestionEmergencias() {
+        // Inicialización vacía, los recursos se inicializan a través del método inicializarRecursos
+    }
+
+    public void inicializarRecursos(int vehiculos, int personal, int combustible) {
+        this.vehiculosDisponibles = vehiculos;
+        this.personalDisponible = personal;
+        this.combustibleDisponible = combustible;
+    }
 
     public void agregarEmergencia(Emergencia emergencia) {
         recursos.add(emergencia);
