@@ -85,7 +85,7 @@ public class Main {
 
     private void registrarEmergencia() {
         JFrame frame = new JFrame("Registrar Nueva Emergencia");
-        frame.setSize(400, 300);
+        frame.setSize(400, 400);
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -102,18 +102,46 @@ public class Main {
         JLabel labelGravedad = new JLabel("Nivel de Gravedad:");
         JComboBox<String> comboBoxGravedad = new JComboBox<>(new String[]{"Alta", "Media", "Baja"});
 
+        JButton buttonCalcular = new JButton("Calcular Recursos");
+
+        JLabel labelVehiculos = new JLabel("Vehículos necesarios:");
+        JTextField textFieldVehiculos = new JTextField();
+        JLabel labelPersonal = new JLabel("Personal necesario:");
+        JTextField textFieldPersonal = new JTextField();
+        JLabel labelCombustible = new JLabel("Combustible necesario (litros):");
+        JTextField textFieldCombustible = new JTextField();
+
+        buttonCalcular.addActionListener((@SuppressWarnings("unused") ActionEvent e) -> {
+            String tipo = (String) comboBoxTipo.getSelectedItem();
+            String gravedad = (String) comboBoxGravedad.getSelectedItem();
+            int vehiculos = calcularVehiculosNecesarios(tipo, gravedad);
+            int personal = calcularPersonalNecesario(tipo, gravedad);
+            int combustible = calcularCombustibleNecesario(tipo, gravedad);
+            textFieldVehiculos.setText(String.valueOf(vehiculos));
+            textFieldPersonal.setText(String.valueOf(personal));
+            textFieldCombustible.setText(String.valueOf(combustible));
+        });
+
         JButton buttonAgregar = new JButton("Agregar Emergencia");
 
         buttonAgregar.addActionListener((@SuppressWarnings("unused") ActionEvent e) -> {
-            String tipo = (String) comboBoxTipo.getSelectedItem();
-            double latitud = Double.parseDouble(textFieldLatitud.getText());
-            double longitud = Double.parseDouble(textFieldLongitud.getText());
-            String gravedad = (String) comboBoxGravedad.getSelectedItem();
-            Ubicacion ubicacion = new Ubicacion(latitud, longitud);
-            Emergencia emergencia = EmergenciaFactory.crearEmergencia(tipo, ubicacion, gravedad);
-            sistema.agregarEmergencia(emergencia);
-            JOptionPane.showMessageDialog(frame, "Emergencia registrada exitosamente.");
-            frame.dispose();
+            try {
+                String tipo = (String) comboBoxTipo.getSelectedItem();
+                double latitud = Double.parseDouble(textFieldLatitud.getText());
+                double longitud = Double.parseDouble(textFieldLongitud.getText());
+                String gravedad = (String) comboBoxGravedad.getSelectedItem();
+                int vehiculos = Integer.parseInt(textFieldVehiculos.getText());
+                int personal = Integer.parseInt(textFieldPersonal.getText());
+                int combustible = Integer.parseInt(textFieldCombustible.getText());
+                Ubicacion ubicacion = new Ubicacion(latitud, longitud);
+                Emergencia emergencia = EmergenciaFactory.crearEmergencia(tipo, ubicacion, gravedad);
+                emergencia.setRecursosNecesarios(vehiculos, personal, combustible);
+                sistema.agregarEmergencia(emergencia);
+                JOptionPane.showMessageDialog(frame, "Emergencia registrada exitosamente.");
+                frame.dispose();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame, "Por favor, ingrese valores válidos.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         });
 
         panel.add(labelTipo);
@@ -124,10 +152,44 @@ public class Main {
         panel.add(textFieldLongitud);
         panel.add(labelGravedad);
         panel.add(comboBoxGravedad);
+        panel.add(buttonCalcular);
+        panel.add(labelVehiculos);
+        panel.add(textFieldVehiculos);
+        panel.add(labelPersonal);
+        panel.add(textFieldPersonal);
+        panel.add(labelCombustible);
+        panel.add(textFieldCombustible);
         panel.add(buttonAgregar);
 
         frame.add(panel);
         frame.setVisible(true);
+    }
+
+    private int calcularVehiculosNecesarios(String tipo, String gravedad) {
+        return switch (tipo) {
+            case "Incendio" -> gravedad.equals("Alta") ? 3 : gravedad.equals("Media") ? 2 : 1;
+            case "Accidente Vehicular" -> gravedad.equals("Alta") ? 2 : gravedad.equals("Media") ? 1 : 1;
+            case "Robo" -> gravedad.equals("Alta") ? 2 : gravedad.equals("Media") ? 1 : 1;
+            default -> 1;
+        };
+    }
+
+    private int calcularPersonalNecesario(String tipo, String gravedad) {
+        return switch (tipo) {
+            case "Incendio" -> gravedad.equals("Alta") ? 10 : gravedad.equals("Media") ? 7 : 5;
+            case "Accidente Vehicular" -> gravedad.equals("Alta") ? 5 : gravedad.equals("Media") ? 3 : 2;
+            case "Robo" -> gravedad.equals("Alta") ? 4 : gravedad.equals("Media") ? 3 : 2;
+            default -> 2;
+        };
+    }
+
+    private int calcularCombustibleNecesario(String tipo, String gravedad) {
+        return switch (tipo) {
+            case "Incendio" -> gravedad.equals("Alta") ? 100 : gravedad.equals("Media") ? 70 : 50;
+            case "Accidente Vehicular" -> gravedad.equals("Alta") ? 50 : gravedad.equals("Media") ? 30 : 20;
+            case "Robo" -> gravedad.equals("Alta") ? 40 : gravedad.equals("Media") ? 30 : 20;
+            default -> 20;
+        };
     }
 
     private void verRecursos() {

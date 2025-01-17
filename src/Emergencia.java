@@ -3,6 +3,9 @@ public class Emergencia {
     private final String nivelGravedad;
     private final int tiempoRespuesta;
     protected Ubicacion ubicacion;
+    private int vehiculosNecesarios;
+    private int personalNecesario;
+    private int combustibleNecesario;
 
     public Emergencia(String tipo, String nivelGravedad, int tiempoRespuesta, Ubicacion ubicacion) {
         if (nivelGravedad == null) {
@@ -28,6 +31,12 @@ public class Emergencia {
 
     public Ubicacion getUbicacion() {
         return ubicacion;
+    }
+
+    public void setRecursosNecesarios(int vehiculos, int personal, int combustible) {
+        this.vehiculosNecesarios = vehiculos;
+        this.personalNecesario = personal;
+        this.combustibleNecesario = combustible;
     }
 
     public int getPrioridad() {
